@@ -18,9 +18,5 @@ ignition/deployments/chain-31337
 
 # package-lock.json
 package-lock.json
-
-# crypto-piggy-frontend
-/crypto-piggy-frontend
-
 # projectindo.txt
 projectindo.txt
