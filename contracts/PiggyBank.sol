@@ -18,6 +18,13 @@ contract PiggyBank {
     error AlreadyDeposited();
     error MustSendETH();
 
+    /**
+     * @dev Allows users to deposit ETH into the PiggyBank with a specified lock time.
+     * @param _lockTime The duration (in seconds) for which the funds will be locked.
+     * Requirements:
+     * - The deposit amount must be greater than zero.
+     * - The user must not have an existing deposit.
+     */
     function deposit(uint256 _lockTime) external payable {
         if (msg.value == 0) revert MustSendETH();
         if (deposits[msg.sender].amount > 0) revert AlreadyDeposited();
@@ -28,6 +35,13 @@ contract PiggyBank {
         emit Deposited(msg.sender, msg.value, unlockTime);
     }
 
+    /**
+     * @dev Allows users to withdraw their deposited ETH after the unlock time.
+     * Requirements:
+     * - The user must have a deposit.
+     * - The funds must be unlocked (current time must be greater than or equal to unlock time).
+     * Reverts if the withdrawal fails.
+     */
     function withdraw() external {
         Deposit memory userDeposit = deposits[msg.sender];
         if (userDeposit.amount == 0) revert NoDepositFound();
@@ -42,6 +56,12 @@ contract PiggyBank {
         if (!success) revert WithdrawFailed();
     }
 
+    /**
+     * @dev Retrieves the deposit details for a specified user.
+     * @param _user The address of the user whose deposit details are being requested.
+     * @return amount The amount of ETH deposited by the user.
+     * @return unlockTime The time at which the funds will be unlocked.
+     */
     function getDeposit(address _user) external view returns (uint256 amount, uint256 unlockTime) {
         Deposit memory userDeposit = deposits[_user];
         return (userDeposit.amount, userDeposit.unlockTime);
