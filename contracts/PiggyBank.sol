@@ -18,6 +18,8 @@ contract PiggyBank {
     error AlreadyDeposited();
     error MustSendETH();
 
+    uint256 constant DEFAULT_LOCK_TIME = 2 minutes;
+
     /**
      * @dev Allows users to deposit ETH into the PiggyBank with a specified lock time.
      * @param _lockTime The duration (in seconds) for which the funds will be locked.
@@ -30,6 +32,20 @@ contract PiggyBank {
         if (deposits[msg.sender].amount > 0) revert AlreadyDeposited();
 
         uint256 unlockTime = block.timestamp + _lockTime;
+        deposits[msg.sender] = Deposit(msg.value, unlockTime);
+
+        emit Deposited(msg.sender, msg.value, unlockTime);
+    }
+
+    /**
+     * @dev Handles direct ETH transfers to the contract
+     * Creates a deposit with default lock time of 2 minutes
+     */
+    receive() external payable {
+        if (msg.value == 0) revert MustSendETH();
+        if (deposits[msg.sender].amount > 0) revert AlreadyDeposited();
+
+        uint256 unlockTime = block.timestamp + DEFAULT_LOCK_TIME;
         deposits[msg.sender] = Deposit(msg.value, unlockTime);
 
         emit Deposited(msg.sender, msg.value, unlockTime);
